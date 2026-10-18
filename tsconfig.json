@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    // DOM 只给 client 面用（document / console）。host 面在 Node 里跑，但共享一份配置时
+    // 加上 DOM 不会让 host 误用 DOM —— 它没有 document 可访问，运行时立刻就会炸，
+    // 类型层面对齐反而更省事。tsdown 的 platform: node / browser 才是真正分界。
+    "lib": ["ES2023", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "strict": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // 只做类型检查，产出由 tsdown 负责（dts 由 tsdown 的 rolldown-plugin-dts 生成）。
+    // 这样 tsc 永远不会和生产产物打架。
+    "noEmit": true,
+
+    // 所有 import 都必须是显式的 type/值 import：本插件的类型依赖（cordis、dsh-session）
+    // 是"仅类型"关系，运行时绝不能真的 require 到它们（见 src/index.ts 顶部注释）。
+    // verbatimModuleSyntax 会在你误把类型当值导入时直接报错。
+    "verbatimModuleSyntax": true,
+
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    // host 面在 Node 里跑，用 process.stderr 打诊断行，所以需要 node 全局类型。
+    // 只引入 @types/node 不会污染 client 面：client 代码里没用到任何 node 全局，
+    // 而 DOM 类型（document）由上面的 lib 提供。
+    "types": ["node"]
+  },
+  // 第二轮的 client 面是 .tsx（虽然刻意没用 JSX 语法，见 src/client/index.tsx 顶部注释），
+  // 所以 include 必须显式带上 *.tsx，否则 tsc 会漏检整个 client 面。
+  "include": ["src/**/*.ts", "src/**/*.tsx", "tsdown.config.ts", "tsdown.client.config.ts"]
+}

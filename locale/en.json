@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Tool Context Cost Hint",
+    "description": "Shows, under each reply, how many times each tool ran this turn and how many tokens those calls injected into the context. Injection size only — no pricing."
+  }
+}

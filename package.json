@@ -1,0 +1,75 @@
+{
+  "name": "dsh-tool-cost-hint",
+  "version": "0.2.0",
+  "private": false,
+  "type": "module",
+  "description": "不告诉你花了多少钱，只告诉你每个工具往你的上下文里塞了多少东西。",
+  "keywords": [
+    "dsh",
+    "dsh-bundle",
+    "dsh-plugin",
+    "cordis",
+    "token",
+    "context"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/issues"
+  },
+  "homepage": "https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint#readme",
+  "author": "析渝",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": "./dist/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "cordis.patch.yml",
+    "locale",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  },
+  "scripts": {
+    "build": "tsdown && tsdown -c tsdown.client.config.ts",
+    "build:host": "tsdown",
+    "build:client": "tsdown -c tsdown.client.config.ts",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node test/run.mjs"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "3.18.4",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "~4.0.4",
+    "@deepseek-ai/dsh-session": "0.2.0-rc.2",
+    "@deepseek-ai/dsh-token-meter": "0.2.0-rc.2",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "tsdown": "^0.15.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,8 @@
+# 统一换行与编码：仓库内容全部为 UTF-8 文本（含中文注释），
+# 强制 LF 避免 Windows 检出时混入 CRLF 造成全文件 diff。
+* text=auto eol=lf
+
+# 二进制类型（虽然 .tgz 与 dist 已由 .gitignore 排除，这里只做兜底标记）
+*.tgz binary
+*.png binary
+*.ico binary
