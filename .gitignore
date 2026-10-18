@@ -1,0 +1,16 @@
+# 构建产物与依赖
+node_modules/
+dist/
+
+# 打包产物（npm pack 生成，别人 clone 后自己 build 即可，不入库）
+*.tgz
+
+# 自测产生的临时文件
+*.log
+*.tmp
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
