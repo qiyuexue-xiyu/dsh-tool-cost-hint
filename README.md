@@ -88,7 +88,26 @@ npm install "C:\Users\you\Downloads\dsh-tool-cost-hint-0.2.0.tgz"
 
 ## 0. 怎么把插件发给别人
 
-**先说清楚一件事：本仓库的网页地址不是一个可以直接安装的地址。**
+**最简单的办法：直接发这个固定下载链接。**
+
+```text
+https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/latest/download/dsh-tool-cost-hint-0.2.0.tgz
+```
+
+这个链接指向带着**预构建 `dist/`** 的 tarball，永远指向最新 Release，不会失效。
+对方下载后一条命令装好（命令行版）：
+
+```bash
+dsh plugin --profile web add ./dsh-tool-cost-hint-0.2.0.tgz
+```
+
+桌面版看本文件开头的「⚠️ 安装前必读」——`dsh plugin` 对 desktop profile 一定会失败，必须手改 `package.json`。
+
+当前 Release：https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/tag/v0.2.0
+
+---
+
+**注意：本仓库的网页地址本身不是一个可以直接安装的地址。**
 
 ```text
 # ❌ 这些都不行（网页地址不是安装源）
@@ -100,23 +119,28 @@ DSH 的安装来源只有三种（[官方文档](https://deepseek-harness.github
 | 来源 | 命令形态 | 能不能用在本插件 |
 | --- | --- | --- |
 | npm 包名 | `dsh plugin --profile web add <包名>` | **暂不可用**——还没发布到 npm registry |
-| GitHub 源码 | `dsh plugin --profile web add github:qiyuexue-xiyu/dsh-tool-cost-hint` | **可用**，但对方本机要能连 GitHub |
-| 本地 tarball | `dsh plugin --profile web add ./x.tgz` | **可用**，最省事，见下 |
+| GitHub 源码 | `dsh plugin --profile web add github:qiyuexue-xiyu/dsh-tool-cost-hint` | **可用**，但拉的是源码，对方要能连 GitHub 且本机得有构建工具链 |
+| Release / 本地 tarball | `dsh plugin --profile web add ./x.tgz` | **可用且最省事**，`dist/` 已经打包在里面 |
 
-> 注意：`github:` 源拉的是**源码**而不是构建产物，对方装完还需要 `npm i && npm run build`
-> 才能生成 `dist/`。不想让对方装 Node 工具链，就用 tarball（路线 A）。
-
-也就是说：**给别人一个网址现在装不上，必须给文件。** 下面是三条可行路线，按省事程度排序。
+> 注意：`github:` 源拉的是**源码**而不是构建产物（`dist/` 不进 git）。
+> 对方装完如果没有构建产物，插件加载会失败。想省掉这一步就用 Release 里的 tarball（路线 A）。
 
 ### 路线 A：发 tarball 文件（现在就能用，推荐）
 
+**推荐直接发 Release 链接**，不用自己打包：
+
+```text
+https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/latest/download/dsh-tool-cost-hint-0.2.0.tgz
+```
+
+也可以自己打包后发文件（`dist/` 必须先构建好，见第 8 节）：
+
 ```bash
-# 你这边：打包（dist/ 必须已经在，说明见第 8 节）
 npm run build
 pnpm pack        # 或 npm pack，产出 dsh-tool-cost-hint-0.2.0.tgz
 ```
 
-把 `dsh-tool-cost-hint-0.2.0.tgz`（约 31 KB）通过微信 / 网盘 / 邮件发给对方，对方执行：
+把 `dsh-tool-cost-hint-0.2.0.tgz`（约 32 KB）通过微信 / 网盘 / 邮件发给对方，对方执行：
 
 ```bash
 # 非桌面版
@@ -125,11 +149,13 @@ dsh plugin --profile web add ./dsh-tool-cost-hint-0.2.0.tgz
 
 桌面版按本文件开头的「⚠️ 安装前必读」手改 `package.json`（`dsh plugin` 对 desktop profile 永远会失败）。
 
-安全提示：对方用非官方渠道拿到的文件时，先核对 sha256 再装：
+安全提示：对方用非官方渠道拿到的文件时，先核对 sha256 再装（Windows）：
 
 ```bash
-certutil -hashfile dsh-tool-cost-hint-0.2.0.tgz SHA256    # Windows
+certutil -hashfile dsh-tool-cost-hint-0.2.0.tgz SHA256
 ```
+
+`v0.2.0` 的期望值：`73190410b86206af6e4b5785dec006f2ca59a7c6ce8c97b637607285fb19cba6`
 
 ### 路线 B：发布到 npm registry（之后就能"一个包名直接装"）
 
@@ -161,7 +187,10 @@ dsh plugin --profile web add dsh-tool-cost-hint
 
 - 只想给一两个朋友试：**路线 A**，一分钟搞定；
 - 想让人一条命令装、且能持续更新：**路线 B**（需要 npm 账号）；
-- 想被更多人搜到：**路线 C**（需要 GitHub 仓库，且最终安装仍走 A 或 B 的来源）。
+- 想被更多人搜到：**路线 C**（仓库已满足条件，去提交即可）。
+
+> 补充：部分 DSH 版本的客户端界面上有「添加插件」输入框，可以填包名 / GitHub 仓库地址 / 本地目录路径。
+> 填 GitHub 地址时拉的是源码（可能需要本机构建）；**填本地 `.tgz` 的完整路径最稳**，因为 `dist/` 已经打包好了。
 
 ---
 
