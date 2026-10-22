@@ -1,6 +1,33 @@
 # dsh-tool-cost-hint
 
+[![Listed on awesome-dsh-plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com/p/qiyuexue-xiyu/dsh-tool-cost-hint/)
+
 > 不告诉你花了多少钱，只告诉你每个工具往你的上下文里塞了多少东西。
+
+---
+
+## ✅ 已收录：现在可以直接在 DSH 里搜到
+
+本插件已收录进 DSH 官方插件精选列表 [awesome-dsh-plugin](https://awesome-dsh-plugin.com)，
+分类 **用量与计费（usage）**：
+
+**插件页：https://awesome-dsh-plugin.com/p/qiyuexue-xiyu/dsh-tool-cost-hint/**
+
+### 安装方式（按你的 DSH 类型选）
+
+| 你的 DSH | 怎么装 |
+| --- | --- |
+| **桌面版 / 任意版本，想省事** | 打开 DSH 的「插件」页，搜索 **`dsh-tool-cost-hint`**（或搜「工具 token」「注入量」），点安装 |
+| 有 `dsh` 命令的 CLI 版 | `dsh plugin add <你的 profile 名> dsh-tool-cost-hint` |
+| 想装指定版本 | `dsh plugin add <你的 profile 名> https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/download/v0.2.0/dsh-tool-cost-hint-0.2.0.tgz` |
+| 连不上 GitHub | 用发布好的离线自包含包，见「路线 A2」 |
+
+> 注意：**桌面版（Electron）的 `desktop` profile 被主进程独占，`dsh plugin add` 一定会失败**
+> （`error: profile "desktop" is managed exclusively by the Electron application`）。
+> 桌面版请用 DSH 的插件页搜索安装，或按本文件开头的「⚠️ 安装前必读」手改 `package.json`。
+
+收录意味着 DSH 的插件市场会把本插件列出来、可直接安装；安装走的是 GitHub Release 上
+**预构建好的 tarball**（`dist/` 已打包在内），**不需要 Node 构建链、不需要本地编译**，几秒装完。
 
 纯被动观察插件：**不注册工具**、**不往模型上下文写任何东西**、**不 append 任何 session 事件**。
 它只监听 `session/event`，在每轮结束时整理出"这一轮谁调了哪些工具、各几次、各自注入多少 token"。
@@ -88,18 +115,21 @@ npm install "C:\Users\you\Downloads\dsh-tool-cost-hint-0.2.0.tgz"
 
 ## 0. 怎么把插件发给别人
 
-**最简单的办法：直接发这个固定下载链接。**
+> **推荐：直接让对方在 DSH 的「插件」页搜 `dsh-tool-cost-hint`。**
+> 插件已被 [awesome-dsh-plugin](https://awesome-dsh-plugin.com/p/qiyuexue-xiyu/dsh-tool-cost-hint/) 收录，
+> 搜索安装走的是预构建 tarball，不用终端、不用构建、不用手改配置。
 
-```text
-https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/latest/download/dsh-tool-cost-hint-0.2.0.tgz
-```
-
-这个链接指向带着**预构建 `dist/`** 的 tarball，永远指向最新 Release，不会失效。
-对方下载后一条命令装好（命令行版）：
+**不想搜索的话，把下面这一条命令发给对方，复制粘贴就装好了：**
 
 ```bash
-dsh plugin --profile web add ./dsh-tool-cost-hint-0.2.0.tgz
+dsh plugin --profile web add https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/latest/download/dsh-tool-cost-hint-0.2.0.tgz
 ```
+
+DSH 会把以 `.tgz` 结尾的 http(s) 直链识别成远程 tarball 直接拉取（见下文的解析表），
+所以对方**不需要先下载文件、不需要 Node 构建链**，`dist/` 已经打包在里面。
+
+> 注意 `--profile web` 里的 `web` 要换成对方实际使用的 profile 名。
+> 桌面版（Electron）不适用——看本文件开头的「⚠️ 安装前必读」。
 
 桌面版看本文件开头的「⚠️ 安装前必读」——`dsh plugin` 对 desktop profile 一定会失败，必须手改 `package.json`。
 
@@ -114,37 +144,49 @@ dsh plugin --profile web add ./dsh-tool-cost-hint-0.2.0.tgz
 dsh plugin add https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint
 ```
 
-DSH 的安装来源只有三种（[官方文档](https://deepseek-harness.github.io/deepseek-harness/develop/basic/publish)）：
+DSH 的安装来源有四种（依据 `dsh-plugin-manager/lib/types/install-spec.js` 的 `parseInstallSpec`）：
 
-| 来源 | 命令形态 | 能不能用在本插件 |
-| --- | --- | --- |
-| npm 包名 | `dsh plugin --profile web add <包名>` | **暂不可用**——还没发布到 npm registry |
-| GitHub 源码 | `dsh plugin --profile web add github:qiyuexue-xiyu/dsh-tool-cost-hint` | **可用**，但拉的是源码，对方要能连 GitHub 且本机得有构建工具链 |
-| Release / 本地 tarball | `dsh plugin --profile web add ./x.tgz` | **可用且最省事**，`dist/` 已经打包在里面 |
+| 来源 | 命令形态 | 解析结果 | 能不能用在本插件 |
+| --- | --- | --- | --- |
+| npm 包名 | `dsh plugin --profile web add dsh-tool-cost-hint` | `registry` | **暂不可用**——还没发布到 npm registry（包名未被占用） |
+| GitHub 源码 | `dsh plugin --profile web add github:qiyuexue-xiyu/dsh-tool-cost-hint` | `git` | 可用，但拉**源码**（`dist/` 不在 git 里），对方要有 Node 构建链 |
+| **HTTP tarball 直链** | `dsh plugin --profile web add <https://…​.tgz>` | `tarball`，`host` = `github.com` | **✅ 可用，一条命令直接装，无需下载、无需构建** |
+| 本地 tarball | `dsh plugin --profile web add <绝对路径>.tgz` | `tarball`，带 `path` | ✅ 可用，但对方得先有文件 |
 
-> 注意：`github:` 源拉的是**源码**而不是构建产物（`dist/` 不进 git）。
-> 对方装完如果没有构建产物，插件加载会失败。想省掉这一步就用 Release 里的 tarball（路线 A）。
+> 关键：以 `.tgz` / `.tar.gz` 结尾的 http(s) URL 会被识别为 `tarball` 直链（`install-spec.js:16` 的 `TARBALL_SPEC`，
+> 判定在 `:69-75`），pnpm 直接把它当远程 tarball 拉下来。**本地相对路径会被拒绝**
+> （`install-spec.js:67-68`：`a local path must be absolute`），所以一律用绝对路径或 http 直链。
+>
+> 另注：`github:owner/repo` 拉的是**源码**而不是构建产物，装完可能没有 `dist/`。想省掉这一步就用 tarball 直链。
 
-### 路线 A：发 tarball 文件（现在就能用，推荐）
+### 路线 A：一条命令直接装（最省事，推荐）
 
-**推荐直接发 Release 链接**，不用自己打包：
+把下面这一整条发给对方，复制粘贴即可：
 
-```text
-https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/latest/download/dsh-tool-cost-hint-0.2.0.tgz
+```bash
+dsh plugin --profile web add https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/latest/download/dsh-tool-cost-hint-0.2.0.tgz
 ```
 
-也可以自己打包后发文件（`dist/` 必须先构建好，见第 8 节）：
+- 不需要先下载文件，不需要 Node 构建链（`dist/` 已经打包在 tarball 里）；
+- `releases/latest/download/<文件名>` 永远指向最新 Release，不会失效；
+- 已实测：该链接 `302 → release-assets.githubusercontent.com`，返回 35176 字节、合法 gzip，sha256 = `9a407f35…0a4d8`，与本地构建产物**逐字节一致**。
+
+前提是对方能访问 `github.com`。若不能，走「路线 A2」发文件。
+
+### 路线 A2：发 tarball 文件（对方连不上 GitHub 时）
+
+先自己打包（`dist/` 必须先构建好，见第 8 节）：
 
 ```bash
 npm run build
 pnpm pack        # 或 npm pack，产出 dsh-tool-cost-hint-0.2.0.tgz
 ```
 
-把 `dsh-tool-cost-hint-0.2.0.tgz`（约 32 KB）通过微信 / 网盘 / 邮件发给对方，对方执行：
+把 `dsh-tool-cost-hint-0.2.0.tgz`（约 35 KB）通过微信 / 网盘 / 邮件发给对方，对方执行（**路径要写绝对路径**）：
 
 ```bash
 # 非桌面版
-dsh plugin --profile web add ./dsh-tool-cost-hint-0.2.0.tgz
+dsh plugin --profile web add "D:\Downloads\dsh-tool-cost-hint-0.2.0.tgz"
 ```
 
 桌面版按本文件开头的「⚠️ 安装前必读」手改 `package.json`（`dsh plugin` 对 desktop profile 永远会失败）。
@@ -155,7 +197,7 @@ dsh plugin --profile web add ./dsh-tool-cost-hint-0.2.0.tgz
 certutil -hashfile dsh-tool-cost-hint-0.2.0.tgz SHA256
 ```
 
-`v0.2.0` 的期望值：`73190410b86206af6e4b5785dec006f2ca59a7c6ce8c97b637607285fb19cba6`
+`v0.2.0` 的期望值：`9a407f35ec830b52ef40ad81bd97729563e9b09c7dc2bd6ad389c4a81ab0a4d8`
 
 ### 路线 B：发布到 npm registry（之后就能"一个包名直接装"）
 
@@ -173,24 +215,103 @@ dsh plugin --profile web add dsh-tool-cost-hint
 
 这是唯一能做到"我发个名字，对方一条命令装好"的路线。注意 `dist/` 必须在发布前构建好——包里的 `files` 白名单要求 `dist/` 存在（见第 8 节）。
 
+> ⚠️ 已知障碍：部分网络环境下 `npmjs.com`（注册 / 登录 / 发布网页）不可达，而 `registry.npmjs.org`
+> 的**读取**是通的。这种情况下无法自行发布，可选做法：
+> ① 换一个能访问 npmjs.com 的网络完成一次发布（之后更新可用 Automation Token + API）；
+> ② 请能访问的人代发一次（注意：该账号即持有包名 `dsh-tool-cost-hint`）；
+> ③ 暂不发布，用路线 A / A2 分发——对方体验差别只是"一条 URL 命令"而非"一个包名"。
+>
+> 发布前建议先 `npm view dsh-tool-cost-hint` 确认包名仍未被占用（当前确认未被占用）。
+
 ### 路线 C：进 DSH Plugin Hub 插件市场（覆盖面最大）
 
-[DSH Plugin Hub](https://dsh-plugin.org/zh/plugins)（`dsh-plugin` 包，装完在「设置 → 插件市场」）靠爬虫自动收录，收录条件写得很明确：
+> **✅ 本插件已经通过这条路被收录了。** 下面保留完整过程作为参考。
+> 实际生效的是 **awesome-dsh-plugin**（DSH 市场 `dshmarket` 的唯一数据源），不是 dsh-plugin.org。
 
-- **GitHub 公开仓库** + 仓库 Topics 加 `dsh-plugin`（爬虫只认 GitHub）；
-- README 含可复制的安装命令（本文件已有）；
-- 导出 `apply(ctx)`（本插件已导出）。
+**已完成的收录事实**（可作为同行的操作参照）：
 
-仓库已经是 GitHub 公开仓库，剩下的就是给仓库加 `dsh-plugin` topic，然后到 https://dsh-plugin.org/zh/submit 提交。
+1. 收录源仓库：[awesome-dsh-plugin/awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin)，
+   条目放在 `data/plugins/`，**文件名必须是 `owner__repo.yml`**（仓库带子目录时用 `--子路径`）；
+2. 提交的 PR：[#7843](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/7843)，已合并；
+3. 条目内容（这就是本插件现在用的 7 行）：
 
-### 三条路怎么选
+```yaml
+url: https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint
+name: qiyuexue-xiyu/dsh-tool-cost-hint
+category: usage
+description:
+  en: 'Per-turn tool cost line in the chat stream: ...'
+  zh: '每轮对话结束后在回复底部追加一行可折叠提示：...'
+tarball: https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/download/v0.2.0/dsh-tool-cost-hint-0.2.0.tgz
+```
 
-- 只想给一两个朋友试：**路线 A**，一分钟搞定；
-- 想让人一条命令装、且能持续更新：**路线 B**（需要 npm 账号）；
-- 想被更多人搜到：**路线 C**（仓库已满足条件，去提交即可）。
+4. 收录后 `https://awesome-dsh-plugin.com/plugins.json` 的 `count` 增加、条目出现，DSH 内置市场随之可见。
 
-> 补充：部分 DSH 版本的客户端界面上有「添加插件」输入框，可以填包名 / GitHub 仓库地址 / 本地目录路径。
-> 填 GitHub 地址时拉的是源码（可能需要本机构建）；**填本地 `.tgz` 的完整路径最稳**，因为 `dist/` 已经打包好了。
+提交时遇到的两个坑，记下来省得再踩：
+
+- **不能直接往对方仓库推分支**。GitHub 对非协作者强制 fork → 在自己 fork 里建分支 → 跨仓库开 PR。
+  `awesome-dsh-plugin` 对普通账号只有 `pull: true`，直接 `POST /git/refs` 会 404。
+- **首次贡献者的 CI 不会自动跑**，PR 页面显示 `1 workflow awaiting approval`，
+  要维护者点一下「Approve and run」。这期间 `mergeable_state` 显示 `unstable`，**不是失败**。
+
+另有一个更早提到的市场 dsh-plugin.org，本插件**没有**走它，README 里不再把它的徽章当作已收录凭据。
+
+> **重要：市场页 ≠ DSH 内的「插件中心」。**
+> dsh-plugin.org 官方说法是「DSH 内的『插件中心』只展示能用 NPM 一键安装的插件」。没有 npm 包时，
+> 仓库仍会被市场收录、有详情页（安装命令是 `github:qiyuexue-xiyu/dsh-tool-cost-hint` 源码安装），
+> 但**不会出现在 DSH 客户端的插件中心/搜索框里**。想让人在 DSH 里直接搜到，路线 B 是前置条件。
+
+提交使用的 Issue 正文模板：
+
+```markdown
+### 仓库地址
+https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint
+
+### 一句话价值
+每轮对话结束后，在 assistant 回复底部追加一行可折叠提示，告诉你这一轮每个工具各被调用了多少次、
+分别往上下文里注入了多少 token，点开可看逐工具的输入/输出明细。
+
+### 能力分类
+记忆与上下文
+
+### 安装命令
+dsh plugin --profile web add https://github.com/qiyuexue-xiyu/dsh-tool-cost-hint/releases/latest/download/dsh-tool-cost-hint-0.2.0.tgz
+
+### 兼容与运行要求
+DSH 0.2.0-rc.2 及以上（Cordis 4 插件规范）；host 面 Node >= 20；client 面 platform: web。
+纯被动观察：不注册工具、不注入系统提示、不写入 session 日志，插件自身每轮额外 token 消耗为 0。
+
+### 许可证
+MIT
+
+### 截图 / 演示
+折叠态：🛠 pwsh ×15 · read ×4 · write ×7 · skill ×1 · +4 · ≈31K tok
+展开态逐行显示「工具名 / ×次数 / 输入 tok / 输出 tok」，末行为「注入量 ≈31K tok」。
+
+### 补充说明
+- 归因口径：输入 = tool/call 参数 token（官方 estimate 定价），输出 = tool/result 结果 token；
+  两者之和标注为「注入量」而非「花费量」，不与计费、缓存命中混淆。
+- 尚未发布 npm 包（包名 dsh-tool-cost-hint 未被占用），因此不进入 DSH 内置插件中心搜索。
+- 桌面版（Electron）的 desktop profile 被应用独占，`dsh plugin add` 会报
+  `profile "desktop" is managed exclusively by the Electron application`，桌面版需手改 profile 的 package.json。
+
+### 提交前自查
+- [x] 仓库已公开
+- [x] 已添加 GitHub topic：dsh-plugin
+- [x] README 包含安装命令
+- [x] 插件导出 apply(ctx) 模块
+- [x] 仓库根目录包含 package.json
+```
+
+### 四条路怎么选
+
+- 只想给一两个朋友试：**路线 A**（发一条 http 直链命令），一分钟搞定；
+- 对方连不上 GitHub：**路线 A2**（发 32 KB 的 tgz 文件）；
+- 想让人在 DSH 里搜到名字就装、且能持续更新：**路线 B**（需要能访问 npmjs.com 的账号）；
+- 想被更多人搜到：**路线 C**（已完成收录，见上）。
+
+> 补充：DSH 客户端界面上的「添加插件」输入框，接受包名 / `github:owner/repo` / **http(s) tarball 直链** / 绝对路径。
+> 填 GitHub **仓库**地址拉的是源码（可能需要本机构建）；**填 Release 的 `.tgz` 直链最稳**，因为 `dist/` 已经打包好了。
 
 ---
 
